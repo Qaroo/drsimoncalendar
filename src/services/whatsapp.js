@@ -33,9 +33,23 @@ export function getWhatsAppStatus() { return status; }
 
 export async function initWhatsApp(io) {
   ioRef = io;
+  const dataPath = process.env.WHATSAPP_DATA_PATH || './whatsapp-session';
+  const headless = process.env.WHATSAPP_HEADLESS !== 'false';
   client = new Client({
-    authStrategy: new LocalAuth({ clientId: 'calendar-app', dataPath: './whatsapp-session' }),
-    puppeteer: { headless: true, args: ['--no-sandbox','--disable-setuid-sandbox'] }
+    authStrategy: new LocalAuth({ clientId: 'calendar-app', dataPath }),
+    puppeteer: {
+      headless,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote',
+        '--single-process',
+        '--disable-gpu'
+      ]
+    }
   });
 
   client.on('qr', (qr) => emitQr(qr));
